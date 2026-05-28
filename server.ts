@@ -103,19 +103,35 @@ function loadDb() {
       console.log("[Local Persistent DB] Loaded data successfully from db.json");
     }
 
-    // Always ensure the manager account credentials are secure and updated to requested password
+    // Always ensure the manager and guard account credentials are secure and updated
     let adminFound = false;
     let emailFound = false;
+    let guard1Found = false;
+    let guard2Found = false;
+
     users.forEach(u => {
-      if (u.username === "admin") {
+      const uUsername = (u.username || "").trim().toLowerCase();
+      if (uUsername === "admin") {
         u.password = "A1994ahmed2026";
         u.name = "أحمد عبد الجليل (المدير العام)";
         adminFound = true;
       }
-      if (u.username === "ahmad.abduljalil.sy@gmail.com") {
+      if (uUsername === "ahmad.abduljalil.sy@gmail.com") {
         u.password = "A1994ahmed2026";
         u.name = "أحمد عبد الجليل (المدير العام)";
         emailFound = true;
+      }
+      if (uUsername === "guard1") {
+        u.password = "123";
+        u.name = "محمد العتيبي (الحارس - البوابة الشرقية)";
+        u.role = "guard";
+        guard1Found = true;
+      }
+      if (uUsername === "guard2") {
+        u.password = "123";
+        u.name = "علي الشمراني (الحارس - البوابة الغربية)";
+        u.role = "guard";
+        guard2Found = true;
       }
     });
 
@@ -124,6 +140,12 @@ function loadDb() {
     }
     if (!emailFound) {
       users.push({ id: "U-G1", username: "ahmad.abduljalil.sy@gmail.com", password: "A1994ahmed2026", name: "أحمد عبد الجليل (المدير العام)", role: "admin" });
+    }
+    if (!guard1Found) {
+      users.push({ id: "U-2", username: "guard1", password: "123", name: "محمد العتيبي (الحارس - البوابة الشرقية)", role: "guard" });
+    }
+    if (!guard2Found) {
+      users.push({ id: "U-3", username: "guard2", password: "123", name: "علي الشمراني (الحارس - البوابة الغربية)", role: "guard" });
     }
 
     saveDb();
@@ -154,24 +176,34 @@ async function startServer() {
 
   // Auth Integration with Case & Whitespace Insensitive matching
   app.post("/api/auth/login", (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      return res.status(400).json({ success: false, message: "اسم المستخدم وكلمة المرور مطلوبة" });
-    }
+    try {
+      const { username, password } = req.body;
+      console.log(`[API Login Attempt] username="${username}"`);
 
-    const cleanUsername = username.trim().toLowerCase();
-    const cleanPassword = password.trim();
+      if (!username || !password) {
+        return res.status(400).json({ success: false, message: "اسم المستخدم وكلمة المرور مطلوبة" });
+      }
 
-    const user = users.find(u => 
-      u.username.trim().toLowerCase() === cleanUsername && 
-      (u.password || "").trim() === cleanPassword
-    );
+      const cleanUsername = username.trim().toLowerCase();
+      const cleanPassword = password.trim();
 
-    if (user) {
-      const { password: _, ...safeUser } = user;
-      res.json({ success: true, user: safeUser });
-    } else {
-      res.status(401).json({ success: false, message: "اسم المستخدم أو كلمة المرور غير صحيحة" });
+      const user = users.find(u => {
+        const uUsername = (u.username || "").trim().toLowerCase();
+        const uPassword = (u.password || "").trim();
+        return uUsername === cleanUsername && uPassword === cleanPassword;
+      });
+
+      if (user) {
+        const { password: _, ...safeUser } = user;
+        console.log(`[API Login Success] user found:`, safeUser.username);
+        return res.json({ success: true, user: safeUser });
+      } else {
+        console.warn(`[API Login Failed] incorrect credentials for username="${username}"`);
+        return res.status(401).json({ success: false, message: "اسم المستخدم أو كلمة المرور غير صحيحة" });
+      }
+    } catch (e: any) {
+      console.error("[API Login Error] Crash in /api/auth/login route handler:", e);
+      return res.status(500).json({ success: false, message: "حدث خطأ غير متوقع بالخادم أثناء التحقق" });
     }
   });
 
@@ -738,11 +770,24 @@ async function startServer() {
       return res.status(400).json({ error: "بيانات الإجراء غير مكتملة" });
     }
 
-    // Find the bus
-    const bus = buses.find(b => b.id.toUpperCase() === busId.toUpperCase());
+    // Find the bus by ID or by License Plate (with or without spaces)
+    const searchId = busId.trim().toUpperCase();
+    const searchIdNoSpaces = searchId.replace(/\s+/g, "");
+
+    const bus = buses.find(b => {
+      const bId = (b.id || "").trim().toUpperCase();
+      const bPlate = (b.licensePlate || "").trim().toUpperCase();
+      const bPlateNoSpaces = bPlate.replace(/\s+/g, "");
+      
+      return bId === searchId || 
+             bPlate === searchId || 
+             bPlateNoSpaces === searchIdNoSpaces ||
+             bId === searchIdNoSpaces;
+    });
+
     if (!bus) {
-      console.warn(`[API Live Scan] Bus matching ID "${busId}" was NOT found in the database. Active buses:`, buses.map(b => b.id));
-      return res.status(404).json({ error: "عذراً، معرف الحافلة هذا غير مسجل في قواعد بيانات النظام!" });
+      console.warn(`[API Live Scan] Bus matching ID or Plate "${busId}" was NOT found in the database. Active buses:`, buses.map(b => `${b.id}/${b.licensePlate}`));
+      return res.status(404).json({ error: "عذراً، معرف الحافلة أو رقم اللوحة هذا غير مسجل في قواعد بيانات النظام!" });
     }
 
     // Find guard info

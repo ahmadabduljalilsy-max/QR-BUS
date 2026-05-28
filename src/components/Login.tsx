@@ -71,6 +71,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         setError(data.message || "اسم المستخدم أو كلمة المرور غير صحيحة.");
       }
     } catch (err) {
+      console.error("[Login] Guard login failed with network or parsing error:", err);
       setError("عذراً، فشل الاتصال بالخادم لدخول الحراس.");
     } finally {
       setLoading(false);
@@ -108,6 +109,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         setError(data.message || "اسم المستخدم أو كلمة المرور غير صحيحة.");
       }
     } catch (err) {
+      console.error("[Login] Admin login failed with network or parsing error:", err);
       setError("عذراً، فشل الاتصال بالخادم لدخول الإدارة.");
     } finally {
       setLoading(false);
