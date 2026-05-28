@@ -70,9 +70,9 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       } else {
         setError(data.message || "اسم المستخدم أو كلمة المرور غير صحيحة.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("[Login] Guard login failed with network or parsing error:", err);
-      setError("عذراً، فشل الاتصال بالخادم لدخول الحراس.");
+      setError(`عذراً، فشل الاتصال بالخادم لدخول الحراس. (السبب: ${err?.message || err})`);
     } finally {
       setLoading(false);
     }
@@ -108,9 +108,9 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       } else {
         setError(data.message || "اسم المستخدم أو كلمة المرور غير صحيحة.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("[Login] Admin login failed with network or parsing error:", err);
-      setError("عذراً، فشل الاتصال بالخادم لدخول الإدارة.");
+      setError(`عذراً، فشل الاتصال بالخادم لدخول الإدارة. (السبب: ${err?.message || err})`);
     } finally {
       setLoading(false);
     }
@@ -310,6 +310,37 @@ export default function Login({ onLoginSuccess }: LoginProps) {
               >
                 {loading ? "جاري التحقق والدخول إلى النظام..." : "تسجيل الدخول الإداري بكلمة المرور"}
               </button>
+
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                  <div className="w-full border-t border-slate-150"></div>
+                </div>
+                <div className="relative flex justify-center text-xs text-slate-400 font-bold">
+                  <span className="bg-white px-3 font-display">طرق دخول إضافية وسريعة</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={handleSimulatedGoogleLogin}
+                  disabled={loading}
+                  className="py-2.5 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-slate-200 cursor-pointer transition-all active:scale-95 disabled:opacity-50 hover:text-brand-purple hover:border-brand-purple/30"
+                >
+                  <GoogleIcon />
+                  <span className="font-display">تسجيل دخول سريع</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleRealGoogleLogin}
+                  disabled={loading}
+                  className="py-2.5 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-slate-200 cursor-pointer transition-all active:scale-95 disabled:opacity-50 hover:text-brand-purple hover:border-brand-purple/30"
+                >
+                  <GoogleIcon />
+                  <span className="font-display">حساب Google مفرمل</span>
+                </button>
+              </div>
             </form>
           ) : (
             /* GUARD LOGIN SCREEN - STANDARD USERNAME & PASSWORD */
