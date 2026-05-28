@@ -1,0 +1,140 @@
+@import url('https://fonts.googleapis.com/earlyaccess/droidarabickufi.css');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Droid Arabic Kufi", "Tajawal", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Droid Arabic Kufi", "Cairo", "Tajawal", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Custom brand colors matching Drat Al-Munawarah Co. (DMTC) logo */
+  --color-brand-purple: #4c2a75;
+  --color-brand-purple-dark: #1f0d35;
+  --color-brand-purple-light: #8056b8;
+  --color-brand-purple-bg: #0b0416;
+  --color-brand-orange: #f37021;
+  --color-brand-orange-light: #f7943e;
+  --color-brand-cyan: #1da1db;
+  --color-brand-cyan-light: #5dc2ec;
+
+  /* Premium Non-White Light Palette (not white, but light and soft) */
+  --color-white: #faf9fd;
+  --color-slate-50: #f1ecf6;
+  --color-slate-100: #e4dcea;
+  --color-slate-150: #d7cade;
+  --color-slate-200: #cbbae1;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #ede7f4;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(93, 194, 236, 0.06) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(243, 112, 33, 0.04) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(76, 42, 117, 0.04) 0px, transparent 50%);
+  background-attachment: fixed;
+  color: #0f172a;
+}
+
+/* Premium scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(76, 42, 117, 0.01);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(76, 42, 117, 0.12);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(76, 42, 117, 0.25);
+}
+
+/* Custom styles for scanning element overlay themed according to DMTC brand */
+#reader select {
+  padding: 8px 14px;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1e293b;
+  margin-top: 10px;
+  outline: none;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+#reader button {
+  background-color: #f37021; /* brand-orange */
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  margin: 10px auto;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(243, 112, 33, 0.2);
+}
+
+#reader button:hover {
+  background-color: #e05e13; /* slightly darker orange on hover for light mode accessibility */
+}
+
+/* Print Stylesheet to only render the bus card during printing */
+@media print {
+  html, body {
+    background-color: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 100% !important;
+    width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  /* Hide absolutely everything in the app */
+  html, body, #root, #root * {
+    visibility: hidden;
+  }
+
+  /* Override @page settings to set landscape and zero margins to remove headers/footers */
+  @page {
+    size: landscape;
+    margin: 0 !important;
+  }
+
+  /* Make sure the card and its children are visible and render correctly */
+  #printable-badge, #printable-badge * {
+    visibility: visible !important;
+  }
+
+  /* Force print background colors and place the card exactly centered on the landscape sheet */
+  #printable-badge {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    box-shadow: none !important;
+    border-radius: 18px !important;
+    margin: 0 !important;
+    page-break-inside: avoid !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Ensure all child graphics (SVGs, icons, text decorations) print crisp and full-color */
+  #printable-badge * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+

@@ -1,0 +1,10 @@
+{
+  "name": "درة المنورة للنقليات",
+  "description": "نظام التحقق الذكي وتتبع حركات حافلات شركة درة المنورة للنقليات (DMTC) لنقل الحجاج والمعتمرين باستخدام رموز QR المتقدمة.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
