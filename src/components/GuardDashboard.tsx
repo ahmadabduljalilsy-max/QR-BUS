@@ -110,12 +110,18 @@ export default function GuardDashboard({ user, onLogout }: GuardDashboardProps) 
     setScanProcessing(true);
 
     if (!isManual && qrScannerRef.current) {
-      // Stop scanner immediately upon successful read to lock focus
-      try {
-        await qrScannerRef.current.stop();
-      } catch (err) {
-        console.error(err);
-      }
+      // Stop scanner immediately upon successful read asynchronously.
+      // We do NOT await here to avoid blocking or hanging the API fetch call on mobile devices!
+      const scanner = qrScannerRef.current;
+      setTimeout(() => {
+        try {
+          if (scanner && scanner.isScanning) {
+            scanner.stop().catch(err => console.error("Error stopping scanner asynchronously:", err));
+          }
+        } catch (err) {
+          console.error("Async camera stop exception:", err);
+        }
+      }, 50);
     }
 
     // Dynamic, robust parsing of Bus ID in case the scanned code contains a URL or messy spacing

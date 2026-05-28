@@ -138,3 +138,23 @@ body {
   }
 }
 
+/* Scannable overlay animations for design preview modal */
+@keyframes qr-scan-laser {
+  0% {
+    top: 6%;
+    opacity: 0.15;
+  }
+  50% {
+    top: 94%;
+    opacity: 1;
+  }
+  100% {
+    top: 6%;
+    opacity: 0.15;
+  }
+}
+
+.animate-scan-laser {
+  animation: qr-scan-laser 2.4s ease-in-out infinite;
+}
+

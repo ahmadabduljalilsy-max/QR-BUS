@@ -401,6 +401,9 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
           letter-spacing: 0px !important;
           letter-spacing: normal !important;
         }
+        .qr-pulse-overlay {
+          display: none !important;
+        }
       `;
       clone.appendChild(inlineStyle);
       
@@ -505,6 +508,9 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
           * {
             letter-spacing: 0px !important;
             letter-spacing: normal !important;
+          }
+          .qr-pulse-overlay {
+            display: none !important;
           }
         `;
         clone.appendChild(inlineStyle);
@@ -1946,6 +1952,10 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                               borderRadius: badgeSize === 'standard' ? '22px' : '16px',
                             }}
                           />
+                          {/* Anti-forgery watermarked company logo in the center */}
+                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.05] select-none z-0">
+                            <DmtcLogo className={badgeSize === 'standard' ? 'w-[200px] h-[200px]' : 'w-[160px] h-[160px]'} />
+                          </div>
                           <div className="flex h-full w-full gap-5 relative z-10" style={{ direction: 'rtl' }}>
                             
                             {/* Left Column = Map pattern, QR Viewfinder, Scan instructions */}
@@ -1977,6 +1987,32 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                                 <div className="w-4.5 h-4.5 border-b-[2.5px] border-r-[2.5px] border-[#152e5a] absolute -bottom-1.5 -right-1.5 rounded-br-md" />
                                 <div className="w-4.5 h-4.5 border-b-[2.5px] border-l-[2.5px] border-[#152e5a] absolute -bottom-1.5 -left-1.5 rounded-tl-md" />
                                 
+                                {/* Animated scan/pulse overlay for design preview state */}
+                                <div className="qr-pulse-overlay absolute inset-0 rounded-2xl overflow-hidden pointer-events-none z-10">
+                                  {/* Soft background pulse */}
+                                  <div className={`absolute inset-0 opacity-[0.04] animate-pulse ${
+                                    badgeColor === 'purple' ? 'bg-[#152e5a]' :
+                                    badgeColor === 'orange' ? 'bg-[#f37021]' :
+                                    'bg-slate-800'
+                                  }`} />
+                                  
+                                  {/* Circular radar expand ring */}
+                                  <div className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] rounded-full border border-dashed opacity-30 animate-ping [animation-duration:2.5s] ${
+                                    badgeColor === 'purple' ? 'border-[#152e5a]' :
+                                    badgeColor === 'orange' ? 'border-[#f37021]' :
+                                    'border-slate-800'
+                                  }`} />
+
+                                  {/* Horizontal laser line */}
+                                  <div 
+                                    className={`absolute left-0 right-0 h-[2.5px] animate-scan-laser ${
+                                      badgeColor === 'purple' ? 'bg-[#152e5a] shadow-[0_0_8px_rgba(21,46,90,0.6)]' :
+                                      badgeColor === 'orange' ? 'bg-[#f37021] shadow-[0_0_8px_rgba(243,112,33,0.6)]' :
+                                      'bg-slate-700 shadow-[0_0_8px_rgba(51,65,85,0.6)]'
+                                    }`}
+                                  />
+                                </div>
+
                                 {/* Print QR Code */}
                                 <div className={`w-full h-full flex items-center justify-center ${badgeSize === 'standard' ? '[&>img]:!w-[115px] [&>img]:!h-[115px]' : '[&>img]:!w-[100px] [&>img]:!h-[100px]'}`}>
                                   <PrintQR busId={selectedPrintBus.id} />
@@ -2015,12 +2051,22 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                                 <div className={`text-slate-800 font-bold ${badgeSize === 'standard' ? 'space-y-4 text-[16px]' : 'space-y-3.5 text-[14px]'}`}>
                                   <div className="flex items-center justify-between border-b border-dashed border-slate-300 pb-2">
                                     <span className="text-slate-600 font-extrabold">رقم التشغيل الذكي :</span>
-                                    <span className={`font-mono text-[#152e5a] font-black leading-none select-all ${badgeSize === 'standard' ? 'text-[22px]' : 'text-[19px]'}`}>{toEasternArabicNumerals(selectedPrintBus.id)}</span>
+                                    <span 
+                                      className={`font-mono text-[#152e5a] font-black leading-none select-all ${badgeSize === 'standard' ? 'text-[22px]' : 'text-[19px]'}`}
+                                      style={{ textShadow: '1px 1px 2px rgba(21, 46, 90, 0.18)', fontWeight: 950 }}
+                                    >
+                                      {toEasternArabicNumerals(selectedPrintBus.id)}
+                                    </span>
                                   </div>
                                   
                                   <div className="flex items-center justify-between border-b border-dashed border-slate-300 pb-2">
                                     <span className="text-slate-600 font-extrabold">رقم اللوحة المرخصة :</span>
-                                    <span className={`text-[#102a5a] font-black leading-none ${badgeSize === 'standard' ? 'text-[22px]' : 'text-[19px]'}`}>{selectedPrintBus.licensePlate}</span>
+                                    <span 
+                                      className={`text-[#102a5a] font-black leading-none ${badgeSize === 'standard' ? 'text-[22px]' : 'text-[19px]'}`}
+                                      style={{ textShadow: '1px 1px 2px rgba(16, 42, 90, 0.18)', fontWeight: 950 }}
+                                    >
+                                      {selectedPrintBus.licensePlate}
+                                    </span>
                                   </div>
                                   
                                   <div className="flex items-center justify-between pb-1">
@@ -3560,6 +3606,10 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                     borderRadius: badgeSize === 'standard' ? '22px' : '16px',
                   }}
                 />
+                {/* Anti-forgery watermarked company logo in the center */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.05] select-none z-0">
+                  <DmtcLogo className={badgeSize === 'standard' ? 'w-[200px] h-[200px]' : 'w-[160px] h-[160px]'} />
+                </div>
                 <div className="flex h-full w-full gap-5 relative z-10" style={{ direction: 'rtl' }}>
                   
                   {/* Left Column = Map pattern, QR Viewfinder, Scan instructions */}
@@ -3621,12 +3671,22 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                       <div className={`text-slate-800 font-bold ${badgeSize === 'standard' ? 'space-y-4 text-[16px]' : 'space-y-3.5 text-[14px]'}`}>
                         <div className="flex items-center justify-between border-b border-dashed border-slate-300 pb-2">
                           <span className="text-slate-600 font-extrabold">رقم التشغيل الذكي :</span>
-                          <span className={`font-mono text-[#152e5a] font-black leading-none ${badgeSize === 'standard' ? 'text-[22px]' : 'text-[19px]'}`}>{toEasternArabicNumerals(bus.id)}</span>
+                          <span 
+                            className={`font-mono text-[#152e5a] font-black leading-none ${badgeSize === 'standard' ? 'text-[22px]' : 'text-[19px]'}`}
+                            style={{ textShadow: '1px 1px 2px rgba(21, 46, 90, 0.18)', fontWeight: 950 }}
+                          >
+                            {toEasternArabicNumerals(bus.id)}
+                          </span>
                         </div>
                         
                         <div className="flex items-center justify-between border-b border-dashed border-slate-300 pb-2">
                           <span className="text-slate-600 font-extrabold">رقم اللوحة المرخصة :</span>
-                          <span className={`text-[#102a5a] font-black leading-none ${badgeSize === 'standard' ? 'text-[22px]' : 'text-[19px]'}`}>{bus.licensePlate}</span>
+                          <span 
+                            className={`text-[#102a5a] font-black leading-none ${badgeSize === 'standard' ? 'text-[22px]' : 'text-[19px]'}`}
+                            style={{ textShadow: '1px 1px 2px rgba(16, 42, 90, 0.18)', fontWeight: 950 }}
+                          >
+                            {bus.licensePlate}
+                          </span>
                         </div>
                         
                         <div className="flex items-center justify-between pb-1">

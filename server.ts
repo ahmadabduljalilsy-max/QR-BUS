@@ -731,18 +731,25 @@ async function startServer() {
   // Log new movement (Entry / Exit) from guard scanning
   app.post("/api/logs", (req, res) => {
     const { busId, action, guardId } = req.body;
+    console.log(`[API Live Scan] Received scan request: busId="${busId}", action="${action}", guardId="${guardId}"`);
+
     if (!busId || !action || !guardId) {
+      console.warn("[API Live Scan] Missing required fields in scan request");
       return res.status(400).json({ error: "بيانات الإجراء غير مكتملة" });
     }
 
     // Find the bus
     const bus = buses.find(b => b.id.toUpperCase() === busId.toUpperCase());
     if (!bus) {
+      console.warn(`[API Live Scan] Bus matching ID "${busId}" was NOT found in the database. Active buses:`, buses.map(b => b.id));
       return res.status(404).json({ error: "عذراً، معرف الحافلة هذا غير مسجل في قواعد بيانات النظام!" });
     }
 
     // Find guard info
     const guard = users.find(u => u.id === guardId || u.username === guardId);
+    if (!guard) {
+      console.log(`[API Live Scan] Guard with ID/username "${guardId}" not found. Creating entry using anonymous fallback.`);
+    }
     const guardName = guard ? guard.name.split(" ")[0] : "حارس غير معروف"; // Extract first name or default
 
     // Update bus current status in-memory
@@ -761,6 +768,7 @@ async function startServer() {
 
     scanLogs.push(newLog);
     saveDb();
+    console.log(`[API Live Scan] Successfully logged movement for bus "${busId}" by guard "${guardName}". New status: "${bus.status}"`);
     res.status(201).json({ success: true, log: newLog, bus: bus });
   });
 
